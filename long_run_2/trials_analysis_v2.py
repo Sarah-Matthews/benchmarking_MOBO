@@ -1,10 +1,9 @@
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
 try:
-    with open('benchmark_results_multi_trial_long_trial.pkl', 'rb') as f:
+    with open('long_trial_results.pkl', 'rb') as f:
         results_runs = pickle.load(f)
 except FileNotFoundError:
     print("Benchmark results not found. Please run the benchmark first.")
@@ -120,93 +119,6 @@ else:
         })
 
 
-#extracting the measurements dataframes for each trial to plot
-
-measurements_dataframes_sobo = {}
-measurements_dataframes_mobo = {}
-measurements_dataframes_bofire = {}
-
-for entry in sobo_data_list:
-    trial = entry['Trial']
-    dataframe = entry['Campaign Measurements']
-    
-    # Store the dataframe in the dictionary with trial as the key
-    measurements_dataframes_sobo[trial] = dataframe
-
-for entry in mobo_data_list:
-    trial = entry['Trial']
-    dataframe = entry['Campaign Measurements']
-    
-    # Store the dataframe in the dictionary with trial as the key
-    measurements_dataframes_mobo[trial] = dataframe
-
-
-# Loop over bofire_data_list to store the required dataframe
-for entry in bofire_data_list:
-    trial = entry['Trial']
-    dataframe = entry['Campaign Measurements']  # Ensure this is the correct dataframe
-    
-    # Check if 'Campaign Measurements' is correctly referenced as a dataframe
-    #if isinstance(dataframe, pd.DataFrame):
-        #print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
-    #else:
-        #print(f"Warning: Data for Trial {trial} is not a DataFrame!")
-
-    # Store the dataframe under the trial key
-    measurements_dataframes_bofire[trial] = dataframe
-
-print(measurements_dataframes_mobo)
-
-'''Extracting yield and ton values into a 2d array where each row is a different repeat (note this will 
-include the initialisation pts for bofire)'''
-yld_values_list_mobo = []  
-ton_values_list_mobo = []  
-# Loop through each entry in the dictionary
-for trial, dataframe in measurements_dataframes_mobo.items():
-    # Extract yield and ton (TON) values
-    yld_values_mobo = dataframe['yld'].values 
-    ton_values_mobo = dataframe['ton'].values  
-    
-    # Append the values for this trial
-    yld_values_list_mobo.append(yld_values_mobo)
-    ton_values_list_mobo.append(ton_values_mobo)
-
-# Convert lists of arrays into 2D numpy arrays
-yld_values_array_mobo = np.array(yld_values_list_mobo)  
-ton_values_array_mobo = np.array(ton_values_list_mobo)  
-
-
-print("Yield Values Array (shape:", yld_values_array_mobo.shape, "):")
-print(yld_values_array_mobo)
-
-print("\nTon Values Array (shape:", ton_values_array_mobo.shape, "):")
-print(ton_values_array_mobo)
-
-
-
-yld_values_list_bofire = []  
-ton_values_list_bofire = []  
-# Loop through each entry in the dictionary
-for trial, dataframe in measurements_dataframes_bofire.items():
-    # Extract yield and ton (TON) values
-    yld_values_bofire = dataframe['Yield'].values 
-    ton_values_bofire = dataframe['TON'].values  
-    
-    # Append the values for this trial
-    yld_values_list_bofire.append(yld_values_bofire)
-    ton_values_list_bofire.append(ton_values_bofire)
-
-# Convert lists of arrays into 2D numpy arrays
-yld_values_array_bofire = np.array(yld_values_list_bofire)  
-ton_values_array_bofire = np.array(ton_values_list_bofire)  
-
-
-print("Yield Values Array (shape:", yld_values_array_bofire.shape, "):")
-print(yld_values_array_bofire)
-
-print("\nTon Values Array (shape:", ton_values_array_bofire.shape, "):")
-print(ton_values_array_bofire)
-
 
 
 
@@ -237,15 +149,15 @@ for entry in bofire_data_list:
     dataframe = entry['Cumulative Maxima Dataframe']  # Ensure this is the correct dataframe
     
     # Check if 'Campaign Measurements' is correctly referenced as a dataframe
-    #if isinstance(dataframe, pd.DataFrame):
-        #print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
-    #else:
-        #print(f"Warning: Data for Trial {trial} is not a DataFrame!")
+    if isinstance(dataframe, pd.DataFrame):
+        print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
+    else:
+        print(f"Warning: Data for Trial {trial} is not a DataFrame!")
 
     # Store the dataframe under the trial key
     cumulative_maxima_dataframes_bofire[trial] = dataframe
 
-#print('bofire_max',cumulative_maxima_dataframes_bofire)
+print('bofire_max',cumulative_maxima_dataframes_bofire)
 
 
 
@@ -276,14 +188,14 @@ for entry in bofire_data_list:
     dataframe = entry['Times Dataframe']  # Ensure this is the correct dataframe
     
     # Check if 'Campaign Measurements' is correctly referenced as a dataframe
-    #if isinstance(dataframe, pd.DataFrame):
-        #print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
-    #else:
-        #print(f"Warning: Data for Trial {trial} is not a DataFrame!")
+    if isinstance(dataframe, pd.DataFrame):
+        print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
+    else:
+        print(f"Warning: Data for Trial {trial} is not a DataFrame!")
 
     # Store the dataframe under the trial key
     times_dataframes_bofire[trial] = dataframe
 
-#print('sobo_iter times:',times_dataframes_sobo)
-#print('mobo_iter times:',times_dataframes_mobo)
-#print('bofire_iter times:',times_dataframes_bofire)
+print('sobo_iter times:',times_dataframes_sobo)
+print('mobo_iter times:',times_dataframes_mobo)
+print('bofire_iter times:',times_dataframes_bofire)

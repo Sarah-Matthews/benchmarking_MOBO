@@ -1,8 +1,8 @@
 
-from setup_files_alt_v2 import *
-from initialising_points import *
-from baybe_models_v2 import *
-from bofire_setup import run_mobo_optimization
+from setup_file_final import *
+from initialising_points_final import *
+from baybe_models_final import *
+from bofire_setup_final import run_mobo_optimization
 
 def run_benchmark_baybe(num_trials):
 
@@ -35,9 +35,9 @@ def run_benchmark_baybe(num_trials):
     emulator = get_pretrained_reizman_suzuki_emulator(case=1)
 
     #no. iterations for each optimisation run
-    iterations = 40
+    iterations = 35
 
-    # to hold full data from several runs
+    
     
     all_results = {
         "Trials": [],
@@ -49,7 +49,7 @@ def run_benchmark_baybe(num_trials):
 
         bofire_initial_conditions = initialise_random_point(domain=domain_bofire)
         df_random_initialised_point = pd.DataFrame(bofire_initial_conditions)
-        initial_conditions = bofire_initial_conditions.rename(columns=name_map)
+        initial_conditions = df_random_initialised_point.rename(columns=name_map)
 
         
 
@@ -59,7 +59,7 @@ def run_benchmark_baybe(num_trials):
                 results = run_mobo_optimization(emulator = emulator,mobo_strategy = mobo_strategy_bofire,  bofire_initial_conditions = bofire_initial_conditions, experimental_budget=iterations-1)
             else:
                 campaign = copy.deepcopy(model_config["campaign"])
-                results = model_config["model_fn"](emulator, campaign, iterations, initial_conditions_df = initial_conditions)
+                results = model_config["model_fn"](emulator, campaign, iterations, initial_conditions)
 
 
             all_results["Trials"].append(trial)

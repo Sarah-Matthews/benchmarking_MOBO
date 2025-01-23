@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 try:
-    with open('benchmark_results_multi_trial_long_trial.pkl', 'rb') as f:
+    with open('long_trial_results.pkl', 'rb') as f:
         results_runs = pickle.load(f)
 except FileNotFoundError:
     print("Benchmark results not found. Please run the benchmark first.")
@@ -146,16 +146,51 @@ for entry in bofire_data_list:
     trial = entry['Trial']
     dataframe = entry['Campaign Measurements']  # Ensure this is the correct dataframe
     
-    # Check if 'Campaign Measurements' is correctly referenced as a dataframe
-    #if isinstance(dataframe, pd.DataFrame):
-        #print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
-    #else:
-        #print(f"Warning: Data for Trial {trial} is not a DataFrame!")
-
-    # Store the dataframe under the trial key
     measurements_dataframes_bofire[trial] = dataframe
 
-print(measurements_dataframes_mobo)
+print(measurements_dataframes_bofire)
+
+modified_measurements_dataframes_mobo = {}
+
+for trial, dataframe in measurements_dataframes_mobo.items():
+    # Create a new DataFrame with the required columns
+    modified_dataframe = pd.DataFrame({
+        'Iteration': range(1, len(dataframe) + 1),  
+        'Yield': dataframe['yld'].values,          
+        'Ton': dataframe['ton'].values            
+    })
+    
+    # Add the modified DataFrame to the new dictionary
+    modified_measurements_dataframes_mobo[trial] = modified_dataframe
+
+
+
+modified_measurements_dataframes_sobo = {}
+
+for trial, dataframe in measurements_dataframes_sobo.items():
+    # Create a new DataFrame with the required columns
+    modified_dataframe = pd.DataFrame({
+        'Iteration': range(1, len(dataframe) + 1),  
+        'Yield': dataframe['yld'].values,                   
+    })
+    
+    # Add the modified DataFrame to the new dictionary
+    modified_measurements_dataframes_sobo[trial] = modified_dataframe
+
+#print(measurements_dataframes_bofire)
+modified_measurements_dataframes_bofire = {}
+
+for trial, dataframe in measurements_dataframes_bofire.items():
+    # Create a new DataFrame with the required columns
+    modified_dataframe = pd.DataFrame({
+        'Iteration': range(1, len(dataframe) + 1),  
+        'Yield': dataframe['Yield'].values,          
+        'Ton': dataframe['TON'].values            
+    })
+    
+    # Add the modified DataFrame to the new dictionary
+    modified_measurements_dataframes_bofire[trial] = modified_dataframe
+#ßprint(modified_measurements_dataframes_bofire)
 
 '''Extracting yield and ton values into a 2d array where each row is a different repeat (note this will 
 include the initialisation pts for bofire)'''
@@ -167,6 +202,7 @@ for trial, dataframe in measurements_dataframes_mobo.items():
     yld_values_mobo = dataframe['yld'].values 
     ton_values_mobo = dataframe['ton'].values  
     
+    
     # Append the values for this trial
     yld_values_list_mobo.append(yld_values_mobo)
     ton_values_list_mobo.append(ton_values_mobo)
@@ -177,10 +213,10 @@ ton_values_array_mobo = np.array(ton_values_list_mobo)
 
 
 print("Yield Values Array (shape:", yld_values_array_mobo.shape, "):")
-print(yld_values_array_mobo)
+#print(yld_values_array_mobo)
 
 print("\nTon Values Array (shape:", ton_values_array_mobo.shape, "):")
-print(ton_values_array_mobo)
+#print(ton_values_array_mobo)
 
 
 
@@ -202,10 +238,10 @@ ton_values_array_bofire = np.array(ton_values_list_bofire)
 
 
 print("Yield Values Array (shape:", yld_values_array_bofire.shape, "):")
-print(yld_values_array_bofire)
+#print(yld_values_array_bofire)
 
 print("\nTon Values Array (shape:", ton_values_array_bofire.shape, "):")
-print(ton_values_array_bofire)
+#print(ton_values_array_bofire)
 
 
 

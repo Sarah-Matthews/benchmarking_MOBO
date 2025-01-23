@@ -1,6 +1,6 @@
 #from .models_v2 import * #note this is v2!!!
 
-from setup_files_alt import *
+from setup_file_final import *
 from sklearn.preprocessing import MinMaxScaler
 import pickle
 

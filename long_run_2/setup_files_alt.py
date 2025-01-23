@@ -94,14 +94,14 @@ parameters = [
     ),
     NumericalContinuousParameter(
         name="t_res",
-        bounds=(60,600),
+        bounds=(1,10),
     )
 ]
-
+#print('Parameters defined')
 
 #Defining search space
 searchspace = SearchSpace.from_product(parameters)
-
+#print('Search space defined')
 
 
 target_1 = NumericalTarget(name="yld", mode=f"MAX", bounds=(0,100), transformation="LINEAR")
@@ -134,6 +134,7 @@ recommender = TwoPhaseMetaRecommender(
     )
 )
 
+#print('Recommender defined')
 
 campaign_sobo = Campaign(
     searchspace=searchspace,
@@ -141,7 +142,7 @@ campaign_sobo = Campaign(
     recommender=recommender
     
 )
-
+#print('Campaign (sobo) defined')
 
 campaign_mobo = Campaign(
     searchspace=searchspace,
@@ -149,6 +150,11 @@ campaign_mobo = Campaign(
     recommender=recommender
     
 )
+
+#print('Campaign (mobo) defined')
+
+#BoFire set-up
+
 
 # We wish the temperature of the reaction to be between 30 and 110 °C
 temperature_feature = ContinuousInput(
@@ -227,11 +233,10 @@ experiments = pd.DataFrame(
 
 
 max_objective = MaximizeObjective(w=1.0)
-#min_objective = MinimizeObjective(w=1.0, bounds=[0, 200])
-max_objective_2 = MaximizeObjective(w=1.0, bounds=[0, 100])
+min_objective = MinimizeObjective(w=1.0, bounds=[0, 200])
 
 yield_feature = ContinuousOutput(key="Yield", objective=max_objective)
-ton_feature = ContinuousOutput(key="TON", objective=max_objective_2)
+ton_feature = ContinuousOutput(key="TON", objective=min_objective)
 # create an output feature
 output_features = Outputs(features=[yield_feature, ton_feature])
 domain_bofire = Domain( 
@@ -273,6 +278,7 @@ def perform_df_experiment(data_df: pd.DataFrame, emulator: ReizmanSuzukiEmulator
         else:
             raise ValueError(f"Target column '{target_name}' not found in emulator output.")
 
+    #print(result_df)
 
     return result_df
 
@@ -345,5 +351,16 @@ def evaluate_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
             "valid_TON": np.ones(len(emulator_output.index)),
         }
     )
-    
+    '''return pd.DataFrame(
+        {
+            "Catalyst Loading": emulator_output["Catalyst Loading"],
+            "Residence Time": emulator_output["Residence Time"],
+            "Temperature": emulator_output["Temperature"],
+            "Catalyst": emulator_output["Catalyst"],
+            "Yield": emulator_output["Yield"],
+            "valid_Yield": np.ones(len(emulator_output.index)),
+            "TON": emulator_output["TON"],
+            "valid_TON": np.ones(len(emulator_output.index)),
+        }
+    )'''
 

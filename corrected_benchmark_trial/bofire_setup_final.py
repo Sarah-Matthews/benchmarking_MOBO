@@ -8,7 +8,7 @@ import pandas as pd
 import time
 import os
 import pickle
-from setup_files_alt import evaluate_candidates
+from setup_file_final import evaluate_candidates
 import multiprocessing
 import importlib
 import matplotlib.pyplot as plt
@@ -33,7 +33,7 @@ from bofire.data_models.strategies.api import (
     RandomStrategy as RandomStrategyModel,
 )
 
-from initialising_points import bofire_initial_conditions
+from initialising_points_final import bofire_initial_conditions
 #from benchmarking_alt import bofire_initial_conditions
 
 # We wish the temperature of the reaction to be between 30 and 110 °C

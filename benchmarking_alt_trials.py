@@ -35,7 +35,7 @@ def run_benchmark_baybe(num_trials):
     emulator = get_pretrained_reizman_suzuki_emulator(case=1)
 
     #no. iterations for each optimisation run
-    iterations = 30
+    iterations = 40
 
     # to hold full data from several runs
     
@@ -75,4 +75,4 @@ def run_benchmark_baybe(num_trials):
     
 
 
-results_runs_baybe = run_benchmark_baybe(num_trials=30)
+results_runs_baybe = run_benchmark_baybe(num_trials=15)

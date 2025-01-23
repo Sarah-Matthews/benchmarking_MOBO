@@ -94,14 +94,14 @@ parameters = [
     ),
     NumericalContinuousParameter(
         name="t_res",
-        bounds=(60,600),
+        bounds=(1,10),
     )
 ]
-
+#print('Parameters defined')
 
 #Defining search space
 searchspace = SearchSpace.from_product(parameters)
-
+#print('Search space defined')
 
 
 target_1 = NumericalTarget(name="yld", mode=f"MAX", bounds=(0,100), transformation="LINEAR")
@@ -120,7 +120,7 @@ objective_mobo = Objective(mode="DESIRABILITY", targets = targets_mobo, weights=
 '''
 recommender = TwoPhaseMetaRecommender(
     initial_recommender=RandomRecommender(),
-    recommender=BotorchRecommender()
+    recommender=BotorchRecommender(surrogate_model=GaussianProcessSurrogate, acquisition_function=qLogExpectedImprovement)
 )
 '''
 
@@ -134,6 +134,7 @@ recommender = TwoPhaseMetaRecommender(
     )
 )
 
+#print('Recommender defined')
 
 campaign_sobo = Campaign(
     searchspace=searchspace,
@@ -141,7 +142,7 @@ campaign_sobo = Campaign(
     recommender=recommender
     
 )
-
+#print('Campaign (sobo) defined')
 
 campaign_mobo = Campaign(
     searchspace=searchspace,
@@ -150,6 +151,11 @@ campaign_mobo = Campaign(
     
 )
 
+#print('Campaign (mobo) defined')
+
+#BoFire set-up
+
+
 # We wish the temperature of the reaction to be between 30 and 110 °C
 temperature_feature = ContinuousInput(
     key="Temperature", bounds=[30.0, 110.0], unit="°C"
@@ -157,7 +163,7 @@ temperature_feature = ContinuousInput(
 
 # Catalyst Loading
 catalyst_loading_feature = ContinuousInput(
-    key="Catalyst Loading", bounds=[0.5, 2], unit="%"
+    key="Catalyst Loading", bounds=[0.5, 2.0], unit="%"
 )
 
 # Residence Time
@@ -214,6 +220,7 @@ conditions = summit.DataSet.from_df(candidates)
 results = emulator.run_experiments(conditions, rtn_std=True).rename(
     columns=dict(zip(name_map.values(), name_map.keys())),
 )
+
 experiments = pd.DataFrame(
     {
         "Catalyst Loading": results["Catalyst Loading"],
@@ -227,11 +234,10 @@ experiments = pd.DataFrame(
 
 
 max_objective = MaximizeObjective(w=1.0)
-#min_objective = MinimizeObjective(w=1.0, bounds=[0, 200])
-max_objective_2 = MaximizeObjective(w=1.0, bounds=[0, 100])
+min_objective = MinimizeObjective(w=1.0, bounds=[0, 200])
 
 yield_feature = ContinuousOutput(key="Yield", objective=max_objective)
-ton_feature = ContinuousOutput(key="TON", objective=max_objective_2)
+ton_feature = ContinuousOutput(key="TON", objective=min_objective)
 # create an output feature
 output_features = Outputs(features=[yield_feature, ton_feature])
 domain_bofire = Domain( 
@@ -273,6 +279,7 @@ def perform_df_experiment(data_df: pd.DataFrame, emulator: ReizmanSuzukiEmulator
         else:
             raise ValueError(f"Target column '{target_name}' not found in emulator output.")
 
+    #print(result_df)
 
     return result_df
 
@@ -320,20 +327,32 @@ def evaluate_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
         "Yield": "yld",
         "TON": "ton",
     }
-    candidates = candidates.rename(columns=name_map)
+    #candidates = candidates.rename(columns=name_map)
     #emulator = summit.get_pretrained_reizman_suzuki_emulator(case=1)
     conditions = summit.DataSet.from_df(candidates)
     emulator_output = emulator.run_experiments(
         conditions, rtn_std=True
-    ).rename(columns=dict(zip(name_map.values(), name_map.keys())))
+    )#.rename(columns=dict(zip(name_map.values(), name_map.keys())))
 
      # Check if 'TON' exists in the output
     if 'TON' not in emulator_output.columns:
         print("Warning: 'TON' column not found in emulator output.")
         # Optionally, add a default value for TON or raise an error
-        emulator_output['TON'] = np.nan  # Or handle as appropriate
+        #emulator_output['TON'] = np.nan  # Or handle as appropriate
     
     return pd.DataFrame(
+        {
+            "catalyst_loading": pd.to_numeric(emulator_output["catalyst_loading"], errors='coerce'),#emulator_output["catalyst_loading"],
+            "t_res": pd.to_numeric(emulator_output["t_res"], errors='coerce'),#emulator_output["t_res"],
+            "temperature": pd.to_numeric(emulator_output["temperature"], errors='coerce'),#emulator_output["temperature"],
+            "catalyst": emulator_output["catalyst"],
+            "yld": pd.to_numeric(emulator_output["yld"], errors='coerce'),#emulator_output["yld"],
+            "valid_Yield": np.ones(len(emulator_output.index)),
+            "ton": pd.to_numeric(emulator_output["ton"], errors='coerce'),#emulator_output["ton"],
+            "valid_TON": np.ones(len(emulator_output.index)),
+        }
+    )
+    '''return pd.DataFrame(
         {
             "Catalyst Loading": emulator_output["Catalyst Loading"],
             "Residence Time": emulator_output["Residence Time"],
@@ -344,6 +363,5 @@ def evaluate_candidates(candidates: pd.DataFrame) -> pd.DataFrame:
             "TON": emulator_output["TON"],
             "valid_TON": np.ones(len(emulator_output.index)),
         }
-    )
-    
+    )'''
 

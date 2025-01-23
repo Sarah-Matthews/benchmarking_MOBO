@@ -1,4 +1,4 @@
-from setup_files_alt import *
+from setup_files_alt_v2 import *
 
 
 
@@ -39,8 +39,9 @@ class Models:
 
         #print(f"Initial conditions - randomly generated: {initial_conditions_df}")
    
-        target_measurement = perform_df_experiment_multi(initial_conditions_df, emulator, objective=objective_sobo)
-        #target_measurement = evaluate_candidates(initial_conditions_df)
+        #target_measurement = perform_df_experiment_multi(initial_conditions_df, emulator, objective=objective_sobo)
+        target_measurement = evaluate_candidates(initial_conditions_df)
+        print(target_measurement)
 
         campaign.add_measurements(target_measurement)
  
@@ -65,10 +66,13 @@ class Models:
 
             data_df = pd.concat([data_df, recommended_conditions], ignore_index=True)
 
-            target_measurement = perform_df_experiment(recommended_conditions, emulator, objective=objective_sobo)
-            #target_measurement = evaluate_candidates(candidates=recommended_conditions)
+            #target_measurement = perform_df_experiment(recommended_conditions, emulator, objective=objective_sobo)
+            target_measurement = evaluate_candidates(candidates=recommended_conditions)
+
             campaign.add_measurements(target_measurement)
+
             print('measurements in campaign!',campaign.measurements)
+            
             time_taken = time.time() - t1
             #print(f"Iteration {i} took {(time.time() - t1):.2f} seconds")
         
