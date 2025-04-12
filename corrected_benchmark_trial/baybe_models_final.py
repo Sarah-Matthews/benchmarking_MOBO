@@ -2,10 +2,6 @@ from setup_file_final import *
 
 
 
-'''
-Making a new version to attempt to incorporate the util function into the baybe loops!
-'''
-
 class Models:
     """Class containing 3 bayesian objective models:
     Baybe SOBO, Baybe MOBO & BoTorch MOBO"""
@@ -45,7 +41,7 @@ class Models:
         campaign.add_measurements(target_measurement)
  
         
-        # Record the first step
+        #record the first step
         results_baybe_sobo.append({
             "iteration": 0,
             "measurements": target_measurement
@@ -56,7 +52,7 @@ class Models:
         cumulative_max_yld = float('-inf')
 
         for i in range(1, iterations+1):
-            #print(campaign)
+            print(campaign)
             print(f"Running experiment {i }/{iterations}")
             t1 = time.time()
         
@@ -131,7 +127,7 @@ class Models:
         campaign.add_measurements(target_measurement)
 
 
-        # Record the first step
+        #record the first step
         results_baybe_mobo.append({
             "iteration": 0,
             "measurements": target_measurement

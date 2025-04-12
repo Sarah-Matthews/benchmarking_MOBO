@@ -2,6 +2,9 @@ import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
+#file loads the benchmarkiing results and separates out by model & trial
+
 try:
     with open('benchmark_results_multi_trial.pkl', 'rb') as f:
         results_runs = pickle.load(f)
@@ -12,10 +15,10 @@ except FileNotFoundError:
 if results_runs.empty:
     print("No data found in the benchmark file.")
 else:
-    # Check unique trials in the data
+    
     print(f"Unique trials: {results_runs['Trials'].unique()}")
     
-    # Separate data for each model type and trial
+    
     sobo_data = {}
     mobo_data = {}
     bofire_data = {}
@@ -26,25 +29,25 @@ else:
     mobo_data_list = []
     bofire_data_list=[]
 
-    # Iterate through the rows and filter based on model names and trial numbers
+    
     for _, row in results_runs.iterrows():
-        model_name = row['Models']  # Assuming 'Models' column contains the model names
+        model_name = row['Models']  
         trial = row['Trials']
         results = row['Results']
 
         
 
-        # Assuming results is a tuple (campaign_measurements, dataframe_str)
+        
         campaign_measurements = results[0]
-        dataframe_str = results[1]  # This may need further parsing if the dataframe is serialized
+        dataframe_str = results[1]  
         times_df = results[2]
         
-        # Check if dataframe_str is already a DataFrame
+       
         if isinstance(dataframe_str, pd.DataFrame):
             dataframe = dataframe_str
-            #print(f"Dataframe: {dataframe.head()}")  # Print first few rows to verify
+            
         else:
-            # If it's not a DataFrame, try to convert it (e.g., from a string or another format)
+           
             try:
                 dataframe = pd.read_csv(pd.compat.StringIO(dataframe_str))  # or other formats
             except Exception as e:
@@ -53,7 +56,7 @@ else:
 
         
         
-        # Ensure each trial is added under the respective model's dictionary
+        
         if 'sobo' in model_name.lower():
             if trial not in sobo_data:
                 sobo_data[trial] = {}
@@ -67,7 +70,7 @@ else:
                 bofire_data[trial] = {}
             bofire_data[trial][model_name] = {'campaign_measurements': campaign_measurements, 'dataframe': dataframe, 'times': times_df}
 
-    # Output the separate data dictionaries for each model type and trial
+    #output the separate data dictionaries for each model type and trial
     print("SOBO Data:")
     
     for trial, models in sobo_data.items():
@@ -132,29 +135,29 @@ for entry in sobo_data_list:
     trial = entry['Trial']
     dataframe = entry['Cumulative Maxima Dataframe']
     
-    # Store the dataframe in the dictionary with trial as the key
+    
     cumulative_maxima_dataframes_sobo[trial] = dataframe
 
 for entry in mobo_data_list:
     trial = entry['Trial']
     dataframe = entry['Cumulative Maxima Dataframe']
     
-    # Store the dataframe in the dictionary with trial as the key
+    
     cumulative_maxima_dataframes_mobo[trial] = dataframe
 
 
-# Loop over bofire_data_list to store the required dataframe
+
 for entry in bofire_data_list:
     trial = entry['Trial']
-    dataframe = entry['Cumulative Maxima Dataframe']  # Ensure this is the correct dataframe
+    dataframe = entry['Cumulative Maxima Dataframe'] 
     
-    # Check if 'Campaign Measurements' is correctly referenced as a dataframe
+    
     if isinstance(dataframe, pd.DataFrame):
         print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
     else:
         print(f"Warning: Data for Trial {trial} is not a DataFrame!")
 
-    # Store the dataframe under the trial key
+    
     cumulative_maxima_dataframes_bofire[trial] = dataframe
 
 print('bofire_max',cumulative_maxima_dataframes_bofire)
@@ -171,29 +174,29 @@ for entry in sobo_data_list:
     trial = entry['Trial']
     dataframe = entry['Times Dataframe']
     
-    # Store the dataframe in the dictionary with trial as the key
+    
     times_dataframes_sobo[trial] = dataframe
 
 for entry in mobo_data_list:
     trial = entry['Trial']
     dataframe = entry['Times Dataframe']
     
-    # Store the dataframe in the dictionary with trial as the key
+    
     times_dataframes_mobo[trial] = dataframe
 
 
-# Loop over bofire_data_list to store the required dataframe
+
 for entry in bofire_data_list:
     trial = entry['Trial']
-    dataframe = entry['Times Dataframe']  # Ensure this is the correct dataframe
+    dataframe = entry['Times Dataframe']  
     
-    # Check if 'Campaign Measurements' is correctly referenced as a dataframe
+    
     if isinstance(dataframe, pd.DataFrame):
         print(f"Dataframe for Trial {trial}:\n{dataframe.head()}")
     else:
         print(f"Warning: Data for Trial {trial} is not a DataFrame!")
 
-    # Store the dataframe under the trial key
+    
     times_dataframes_bofire[trial] = dataframe
 
 print('sobo_iter times:',times_dataframes_sobo)

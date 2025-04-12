@@ -4,9 +4,15 @@ import matplotlib.pyplot as plt
 from pymoo.core.problem import Problem
 from pymoo.util.misc import stack
 from pymoo.util.nds.non_dominated_sorting import NonDominatedSorting
-
+from scipy.stats import gaussian_kde
 from mobo_plots import all_yields_mobo, all_tons_mobo, all_yields_bofire, all_tons_bofire, mobo_yld, mobo_ton, bofire_ton, bofire_yld
 from times_analysis_corr import average_time_bofire, average_time_mobo, std_bofire, std_mobo
+
+
+'''
+This file is responsible for hypervolume calculations and plotting pareto fronts
+'''
+
 
 all_points_mobo = np.column_stack((all_yields_mobo, all_tons_mobo))
 all_points_bofire = np.column_stack((all_yields_bofire, all_tons_bofire))
@@ -21,21 +27,22 @@ pareto_front_bofire = all_points_bofire[nds_bofire]
 pareto_front_bofire = pareto_front_bofire[np.argsort(pareto_front_bofire[:, 0])]
 
 
+
 iterations = np.tile(np.arange(1, 36), 15)
 
-# Plot all solutions
+
 plt.figure(figsize=(8, 6))
 scatter_mobo = plt.scatter(all_points_mobo[:, 0], all_points_mobo[:, 1], c=iterations, cmap='viridis', s=50, label="All Solutions")
 
-# Plot the Pareto front
+
 #plt.scatter(pareto_front[:, 0], pareto_front[:, 1], color='red', edgecolor='k', s=100, label="Pareto Front")
 plt.plot(pareto_front_mobo[:, 0], pareto_front_mobo[:, 1], color='red', linewidth=2, label="Pareto Front")
 #plt.scatter(pareto_front_mobo[:, 0], pareto_front_mobo[:, 1], color='red', edgecolor='k', s=30, )
 
-# Add a colourbar
+
 plt.colorbar(scatter_mobo, label='Iteration')
 
-# Labels and title
+
 plt.xlabel('Yield (%)', fontsize = 13)
 plt.ylabel('Turnover Number', fontsize = 13)
 #plt.title('Yield vs TON for BayBE MOBO Optimisation')
@@ -43,19 +50,19 @@ plt.legend()
 plt.show()
 
 
-# Plot all solutions
+
 plt.figure(figsize=(8, 6))
 scatter_bofire = plt.scatter(all_points_bofire[:, 0], all_points_bofire[:, 1], c=iterations, cmap='viridis', s=50, label="All Solutions")
 
-# Plot the Pareto front
+
 #plt.scatter(pareto_front[:, 0], pareto_front[:, 1], color='red', edgecolor='k', s=100, label="Pareto Front")
 plt.plot(pareto_front_bofire[:, 0], pareto_front_bofire[:, 1], color='red', linewidth=2, label="Pareto Front")
 #plt.scatter(pareto_front_bofire[:, 0], pareto_front_bofire[:, 1], color='red', edgecolor='k', s=30, marker='x')
 
-# Add a colourbar
+
 plt.colorbar(scatter_bofire, label='Iteration')
 
-# Labels and title
+
 plt.xlabel('Yield (%)', fontsize = 13)
 plt.ylabel('Turnover Number', fontsize = 13)
 #plt.title('Yield vs TON for BOFire MOBO Optimisation')
@@ -75,13 +82,16 @@ MOBO hypervolume calcs
 '''
 
 
-# Define the approximate ideal and nadir points from the MOBO Pareto front
-approx_ideal_mobo = pareto_front_mobo.min(axis=0)  # Minimum values for each objective
-approx_nadir_mobo = pareto_front_mobo.max(axis=0)  # Maximum values for each objective
 
 
-ref_point_mobo = np.array([approx_nadir_mobo[0] + 0.1, approx_nadir_mobo[1] + 0.1])
 
+
+
+approx_ideal_mobo = pareto_front_mobo.min(axis=0)  # max values for each objective
+approx_nadir_mobo = pareto_front_mobo.max(axis=0)  # min values for each objective
+
+
+ref_point_mobo = np.array([approx_nadir_mobo[0] - 0.1, approx_nadir_mobo[1] - 0.1])
 
 metric_mobo = Hypervolume(ref_point=ref_point_mobo,
                      norm_ref_point=False,
@@ -90,7 +100,7 @@ metric_mobo = Hypervolume(ref_point=ref_point_mobo,
                      nadir=approx_nadir_mobo)
 
 
-#Calculating hypervolume for each iteration, averaged over 15 repeats
+#calculating hypervolume for each iteration, averaged over 15 repeats
 
 hv_per_iteration_mobo = []
 hv_std_per_iteration_mobo = []
@@ -116,7 +126,31 @@ iterations = np.arange(1, 36)
 hv_per_iteration_mobo = np.array(hv_per_iteration_mobo)
 hv_std_per_iteration_mobo = np.array(hv_std_per_iteration_mobo)
 
-#Plotting the average hypervolume with standard deviation as shaded area
+'''
+plt.figure(figsize=(8, 6))
+scatter_mobo = plt.scatter(all_points_mobo[:, 0], all_points_mobo[:, 1], c=iterations, cmap='viridis', s=50, label="All Solutions")
+
+
+#plt.scatter(pareto_front[:, 0], pareto_front[:, 1], color='red', edgecolor='k', s=100, label="Pareto Front")
+plt.plot(pareto_front_mobo[:, 0], pareto_front_mobo[:, 1], color='red', linewidth=2, label="Pareto Front")
+#plt.scatter(pareto_front_mobo[:, 0], pareto_front_mobo[:, 1], color='red', edgecolor='k', s=30, )
+
+# Plot ideal, nadir, and reference points
+plt.scatter(approx_ideal_mobo[0], approx_ideal_mobo[1], color='blue', marker='*', s=150, label="Ideal Point")  
+plt.scatter(approx_nadir_mobo[0], approx_nadir_mobo[1], color='black', marker='X', s=150, label="Nadir Point")
+plt.scatter(ref_point_mobo[0], ref_point_mobo[1], color='purple', marker='D', s=150, label="Reference Point")
+
+plt.colorbar(scatter_mobo, label='Iteration')
+
+plt.title('NADIR')
+plt.xlabel('Yield (%)', fontsize = 13)
+plt.ylabel('Turnover Number', fontsize = 13)
+#plt.title('Yield vs TON for BayBE MOBO Optimisation')
+plt.legend()
+plt.show()
+'''
+
+#plotting the average hypervolume with standard deviation as shaded area
 plt.figure(figsize=(8, 6))
 plt.plot(iterations, hv_per_iteration_mobo, color='#ff7f0e', lw=1.5,) #label="Average Hypervolume")
 plt.fill_between(
@@ -153,9 +187,9 @@ BOFire hypervolume calcs
 '''
 
 
-# Define the approximate ideal and nadir points from the MOBO Pareto front
-approx_ideal_bofire = pareto_front_bofire.min(axis=0)  # Minimum values for each objective
-approx_nadir_bofire = pareto_front_bofire.max(axis=0)  # Maximum values for each objective
+
+approx_ideal_bofire = pareto_front_bofire.min(axis=0)  
+approx_nadir_bofire = pareto_front_bofire.max(axis=0)  
 
 
 ref_point_bofire = np.array([approx_nadir_bofire[0] + 0.1, approx_nadir_bofire[1] + 0.1])
@@ -168,7 +202,7 @@ metric_bofire = Hypervolume(ref_point=ref_point_bofire,
                      nadir=approx_nadir_bofire)
 
 
-#Calculating hypervolume for each iteration, averaged over 15 repeats
+#calculating hypervolume for each iteration, averaged over 15 repeats
 
 hv_per_iteration_bofire = []
 hv_std_per_iteration_bofire = []
@@ -194,7 +228,7 @@ iterations = np.arange(1, 36)
 hv_per_iteration_bofire = np.array(hv_per_iteration_bofire)
 hv_std_per_iteration_bofire = np.array(hv_std_per_iteration_bofire)
 
-#Plotting the average hypervolume with standard deviation as shaded area
+#plotting the average hypervolume with standard deviation as shaded area
 plt.figure(figsize=(8, 6))
 plt.plot(iterations, hv_per_iteration_bofire, color='#2ca02c', lw=1.5,) #label="Average Hypervolume")
 plt.fill_between(
@@ -232,7 +266,7 @@ combined hypervolume plot
 '''
 
 
-#Plotting the average hypervolume with standard deviation as shaded area
+#plotting the average hypervolume with standard deviation as shaded area
 plt.figure(figsize=(8, 6))
 
 
@@ -274,26 +308,26 @@ plt.show()
 bar chart of terminal hypervolume vs iteration time
 
 '''
-'''
-# Data
-models = ['MOBO', 'BoFire']
 
-# Terminal hypervolume (values and standard deviation)
+
+models = ['BayBE', 'BoFire']
+
+
 hypervolume_means = [terminal_hypervolume_mobo, terminal_hypervolume_bofire]
 hypervolume_stds = [terminal_hypervolume_std_mobo, terminal_hypervolume_std_bofire]
 
-# Average time per iteration (values and standard deviation)
+
 time_means = [average_time_mobo, average_time_bofire]
 time_stds = [std_mobo, std_bofire]
 
-# X positions
-x = np.arange(len(models))  # X positions for the groups
+
+x = np.arange(len(models)) 
 bar_width = 0.4
 
-# Create the figure and primary axis
+
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
-# Plot hypervolume on the primary axis
+
 bars_hypervolume = ax1.bar(
     x - bar_width / 2, hypervolume_means, bar_width,
     yerr=hypervolume_stds, capsize=5, label='Terminal Hypervolume', color='blue'
@@ -301,81 +335,113 @@ bars_hypervolume = ax1.bar(
 ax1.set_ylabel('Terminal Hypervolume', color='blue', fontsize = 13)
 ax1.tick_params(axis='y', labelcolor='blue')
 
-# Create a secondary axis for time
+
 ax2 = ax1.twinx()
 bars_time = ax2.bar(
     x + bar_width / 2, time_means, bar_width,
     yerr=time_stds, capsize=5, label='Average Time per Iteration', color='#ff7f0e'
 )
-ax2.set_ylabel('Average Time per Iteration (s)', color='#ff7f0e', fontsize = 13)
+ax2.set_ylabel('Average Time per Iteration (s)', color='#ff7f0e', fontsize = 14)
 ax2.tick_params(axis='y', labelcolor='#ff7f0e')
 
-# Add labels, title, and x-ticks
-ax1.set_xlabel('Models', fontsize = 13)
+
+ax1.set_xlabel('Models', fontsize = 14)
 ax1.set_xticks(x)
 ax1.set_xticklabels(models)
 plt.title('Terminal Hypervolume and Average Time per Iteration')
 
-# Add a legend
+
 fig.legend(loc='upper right', bbox_to_anchor=(0.85, 0.85))
 #plt.legend(loc="lower right")
 # Show the plot
 plt.tight_layout()
-plt.show() '''
+plt.show() 
 
-models = ['MOBO', 'BoFire']
+models = ['BayBE', 'BoFire']
 hypervolume_means = [terminal_hypervolume_mobo, terminal_hypervolume_bofire]
 hypervolume_stds = [terminal_hypervolume_std_mobo, terminal_hypervolume_std_bofire]
 time_means = [average_time_mobo, average_time_bofire]
 time_stds = [std_mobo, std_bofire]
 
-# X positions
-x = np.arange(len(models))  # X positions for the groups
+
+x = np.arange(len(models))  
 bar_width = 0.3
 
-# Create the figure and primary axis
 fig, ax1 = plt.subplots(figsize=(10, 6))
 
-# Plot hypervolume on the primary axis
+
 bars_hypervolume = ax1.bar(
     x - bar_width / 2, hypervolume_means, bar_width,
     yerr=hypervolume_stds, capsize=5, label='Terminal Hypervolume', color='#0c4a6e'
 )
-ax1.set_ylabel('Terminal Hypervolume', color='black', fontsize=11)
+ax1.set_ylabel('Terminal Hypervolume', color='black', fontsize=14)
 ax1.tick_params(axis='y', labelcolor='black')
 ax1.set_ylim(0, 8000)
 ax1.set_yticks(np.arange(0, 8001, 2000)) 
 
-# Create a secondary axis for time
+
 ax2 = ax1.twinx()
 bars_time = ax2.bar(
     x + bar_width / 2, time_means, bar_width,
     yerr=time_stds, capsize=5, label='Average Time per Iteration', color='#9e2a2f'
 )
-ax2.set_ylabel('Average Time per Iteration (s)', color='black', fontsize=11)  # Change to black
+ax2.set_ylabel('Average Time per Iteration (s)', color='black', fontsize=14)  # Change to black
 ax2.tick_params(axis='y', labelcolor='black')
-
-# Set logarithmic scale for the time axis
 ax2.set_yscale('log')
 
-# Add labels, title, and x-ticks
-ax1.set_xlabel('Models', fontsize=11)
+
+ax1.set_xlabel('Models', fontsize=14)
 ax1.set_xticks(x)
 ax1.set_xticklabels(models)
 #plt.title('Terminal Hypervolume and Average Time per Iteration')
 
-# Add a legend
+
 #fig.legend(loc='upper right', bbox_to_anchor=(0.85, 0.85))
 handles, labels = ax1.get_legend_handles_labels()  # Get handles from ax1
 handles2, labels2 = ax2.get_legend_handles_labels()  # Get handles from ax2
 
-# Combine the handles and labels
+
 handles.extend(handles2)
 labels.extend(labels2)
 
-# Create the legend with both labels
+
 plt.legend(handles, labels, loc="upper left")
 #plt.legend(loc="upper left")
 # Show the plot
 plt.tight_layout()
 plt.show()
+
+
+#distribution metrics:
+
+print('pareto_front_baybe', pareto_front_mobo)
+print('pareto_front_baybe no. points', len(pareto_front_mobo))
+print('pareto_front_bofire', pareto_front_bofire)
+print('pareto_front_bofire no. points', len(pareto_front_bofire))
+
+
+kde = gaussian_kde(pareto_front_mobo.T)
+densities = kde(pareto_front_mobo.T)
+
+print(densities)
+
+
+def spacing_metric(pareto_points):
+    
+    pareto_points = np.array(sorted(pareto_points, key=lambda x: x[0]))
+    
+    
+    distances = np.linalg.norm(np.diff(pareto_points, axis=0), axis=1)
+    
+    
+    d_mean = np.mean(distances)
+    
+    
+    S = np.sqrt(np.sum((distances - d_mean) ** 2) / (len(distances) - 1))
+    
+    return S
+
+baybe_spacing_metric = spacing_metric(pareto_front_mobo)
+print('baybe_spacing_metric', baybe_spacing_metric)
+bofire_spacing_metric = spacing_metric(pareto_front_bofire)
+print('bofire_spacing_metric', bofire_spacing_metric)

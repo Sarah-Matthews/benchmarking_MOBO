@@ -4,14 +4,16 @@ from initialising_points_final import *
 from baybe_models_final import *
 from bofire_setup_final import run_mobo_optimization
 
-def run_benchmark_baybe(num_trials):
+
+
+def run_benchmark(num_trials):
 
     """
     Main function to run the benchmark for SOBO and MOBO models.
     """
     import copy
 
-    # Define models and their campaigns
+    #define models and their campaigns
     models_to_run = {
         "SOBO": {
             "model_fn": Models.run_sobo_loop,
@@ -51,6 +53,9 @@ def run_benchmark_baybe(num_trials):
         df_random_initialised_point = pd.DataFrame(bofire_initial_conditions)
         initial_conditions = df_random_initialised_point.rename(columns=name_map)
 
+        print (initial_conditions)
+        print (initial_conditions.dtypes)
+
         
 
         for model_name, model_config in models_to_run.items():
@@ -75,4 +80,4 @@ def run_benchmark_baybe(num_trials):
     
 
 
-results_runs_baybe = run_benchmark_baybe(num_trials=15)
+results_runs = run_benchmark(num_trials=15)

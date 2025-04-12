@@ -21,6 +21,7 @@ from bofire.data_models.features.api import (
     ContinuousInput,
     ContinuousOutput,
     CategoricalInput,
+    CategoricalMolecularInput,
     CategoricalDescriptorInput,)
 
 from pprint import pprint as pp
@@ -32,11 +33,25 @@ from bofire.data_models.acquisition_functions.api import qEI
 from bofire.data_models.strategies.api import (
     RandomStrategy as RandomStrategyModel,
 )
-
+import pathlib
 from initialising_points_final import bofire_initial_conditions
 #from benchmarking_alt import bofire_initial_conditions
 
-# We wish the temperature of the reaction to be between 30 and 110 °C
+catalyst_smiles = pd.read_csv(pathlib.Path.cwd() / pathlib.Path("suzuki_miyaura_catalysts.csv"))
+ligand_smiles = pd.read_csv(pathlib.Path.cwd() / pathlib.Path("suzuki_miyaura_ligands.csv"))
+
+available_catalysts = {
+    "P1-L1": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L1']['smiles'].values[0]}",
+    "P1-L2": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L2']['smiles'].values[0]}",
+    "P1-L3": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L3']['smiles'].values[0]}",
+    "P1-L4": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L4']['smiles'].values[0]}",
+    "P1-L5": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L5']['smiles'].values[0]}",
+    "P1-L6": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L6']['smiles'].values[0]}",
+    "P1-L7": f"{catalyst_smiles[catalyst_smiles['name'] == 'P1']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L7']['smiles'].values[0]}",
+    "P2-L1": f"{catalyst_smiles[catalyst_smiles['name'] == 'P2']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L1']['smiles'].values[0]}",
+}
+
+# temperature
 temperature_feature = ContinuousInput(
     key="Temperature", bounds=[30.0, 110.0], unit="°C"
 )
@@ -52,18 +67,11 @@ residence_time_feature = ContinuousInput(
 )
 
 # Catalyst choice
-catalyst_feature = CategoricalInput(
+# bofire catalyst choice
+catalyst_feature = CategoricalMolecularInput(
     key="Catalyst",
-    categories=[
-        "P1-L1",
-        "P2-L1",
-        "P1-L2",
-        "P1-L3",
-        "P1-L4",
-        "P1-L5",
-        "P1-L6",
-        "P1-L7",
-    ],
+    categories=list(available_catalysts.values())
+    
 )
 
 # gather all individual features
@@ -171,19 +179,11 @@ def run_mobo_optimization(emulator: summit.benchmarks.experimental_emulator.Reiz
     )
 
 
-    catalyst_feature = CategoricalInput(
-        key="Catalyst",
-        categories=[
-            "P1-L1",
-            "P2-L1",
-            "P1-L2",
-            "P1-L3",
-            "P1-L4",
-            "P1-L5",
-            "P1-L6",
-            "P1-L7",
-        ],
-    )
+    catalyst_feature = CategoricalMolecularInput(
+    key="Catalyst",
+    categories=list(available_catalysts.values())
+    
+)
 
     # gather all individual features
     input_features = Inputs(

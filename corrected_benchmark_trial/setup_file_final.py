@@ -43,6 +43,8 @@ from bofire.data_models.features.api import (
     ContinuousInput,
     ContinuousOutput,
     CategoricalInput,
+    MolecularInput,
+    CategoricalMolecularInput,
     CategoricalDescriptorInput,)
 
 from pprint import pprint as pp
@@ -77,7 +79,7 @@ available_catalysts = {
     "P2-L1": f"{catalyst_smiles[catalyst_smiles['name'] == 'P2']['smiles'].values[0]}.{ligand_smiles[ligand_smiles['name'] == 'L1']['smiles'].values[0]}",
 }
 
-#Defining parameter space
+#defining parameter space
 parameters = [
     SubstanceParameter(
         name="catalyst",
@@ -99,7 +101,7 @@ parameters = [
 ]
 
 
-#Defining search space
+#defining search space
 searchspace = SearchSpace.from_product(parameters)
 
 
@@ -150,35 +152,28 @@ campaign_mobo = Campaign(
     
 )
 
-# We wish the temperature of the reaction to be between 30 and 110 °C
+# temperature
 temperature_feature = ContinuousInput(
     key="Temperature", bounds=[30.0, 110.0], unit="°C"
 )
 
-# Catalyst Loading
+# catalyst Loading
 catalyst_loading_feature = ContinuousInput(
     key="Catalyst Loading", bounds=[0.5, 2], unit="%"
 )
 
-# Residence Time
+# residence Time
 residence_time_feature = ContinuousInput(
     key="Residence Time", bounds=[1 * 60, 10 * 60], unit="minutes"
 )
 
-# Catalyst choice
-catalyst_feature = CategoricalInput(
+# bofire catalyst choice
+catalyst_feature = CategoricalMolecularInput(
     key="Catalyst",
-    categories=[
-        "P1-L1",
-        "P2-L1",
-        "P1-L2",
-        "P1-L3",
-        "P1-L4",
-        "P1-L5",
-        "P1-L6",
-        "P1-L7",
-    ],
+    categories=list(available_catalysts.values())
+    
 )
+
 
 # gather all individual features
 input_features = Inputs(
@@ -238,7 +233,7 @@ domain_bofire = Domain(
     inputs=input_features,
     outputs=output_features,
 )
-# a multi objective BO strategy
+# multi objective BO strategy
 
 #qExpectedImprovement = qEHVI()
 qLogExpectedImprovement = qLogEHVI()
