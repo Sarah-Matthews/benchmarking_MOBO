@@ -14,8 +14,6 @@ def random_point(domain):
     return results
 '''
 
-iterations = 30
-
 results_df = pd.DataFrame(columns=["Iteration","Catalyst Loading", "Residence Time", "Temperature", 
                                        "Catalyst", "Yield", "valid_Yield", "TON", "valid_TON"])
 
