@@ -2,6 +2,9 @@
 
 ## Corrected_benchmark_trial Contents
 
+
+File contents falls into the major categories below:
+
 ### 1. Required Inputs
 
 - **suzuki_miyaura_catalysts.csv**  
